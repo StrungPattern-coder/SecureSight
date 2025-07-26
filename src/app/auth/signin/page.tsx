@@ -79,10 +79,18 @@ export default function SignIn() {
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
-          <div className="mt-4 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Demo credentials: admin@example.com / admin123
-            </p>
+          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">
+              🎬 Demo Mode - Any Password Works!
+            </h3>
+            <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+              <div><strong>Admin:</strong> admin@example.com</div>
+              <div><strong>Operator:</strong> operator@example.com</div>
+              <div><strong>Viewer:</strong> viewer@example.com</div>
+              <div className="mt-2 text-blue-600 dark:text-blue-400">
+                💡 Use any password - this is a demo project!
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
