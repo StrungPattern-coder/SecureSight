@@ -1,0 +1,11 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#1f2937"/>
+  <g opacity="0.4">
+    <path d="M200 120L220 140H180L200 120Z" fill="#6b7280"/>
+    <rect x="170" y="140" width="60" height="40" rx="4" fill="#6b7280"/>
+    <circle cx="200" cy="160" r="12" fill="#374151"/>
+    <circle cx="200" cy="160" r="8" fill="#4b5563"/>
+    <circle cx="200" cy="160" r="4" fill="#6b7280"/>
+  </g>
+  <text x="200" y="200" text-anchor="middle" fill="#9ca3af" font-family="Arial, sans-serif" font-size="14">Camera Feed</text>
+</svg>

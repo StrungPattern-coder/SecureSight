@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  password      String?
+  role          UserRole  @default(OPERATOR)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  accounts Account[]
+  sessions Session[]
+
+  @@map("users")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Camera {
+  id           Int      @id @default(autoincrement())
+  name         String
+  location     String
+  status       CameraStatus @default(ACTIVE)
+  thumbnailUrl String   @map("thumbnail_url")
+  streamUrl    String   @map("stream_url")
+  createdAt    DateTime @default(now()) @map("created_at")
+  
+  incidents    Incident[]
+  
+  @@map("cameras")
+}
+
+model Incident {
+  id           Int      @id @default(autoincrement())
+  cameraId     Int      @map("camera_id")
+  type         IncidentType
+  description  String
+  severity     Severity @default(MEDIUM)
+  resolved     Boolean  @default(false)
+  thumbnailUrl String   @map("thumbnail_url")
+  timestamp    DateTime
+  createdAt    DateTime @default(now()) @map("created_at")
+  
+  camera       Camera   @relation(fields: [cameraId], references: [id], onDelete: Cascade)
+  
+  @@map("incidents")
+}
+
+enum CameraStatus {
+  ACTIVE  @map("active")
+  INACTIVE @map("inactive")
+}
+
+enum IncidentType {
+  INTRUSION @map("intrusion")
+  THEFT     @map("theft")
+  VIOLENCE  @map("violence")
+  SUSPICIOUS_ACTIVITY @map("suspicious_activity")
+  UNAUTHORISED_ACCESS @map("unauthorised_access")
+  GUN_THREAT @map("gun_threat")
+  FACE_RECOGNISED @map("face_recognised")
+  VANDALISM @map("vandalism")
+  FIRE_HAZARD @map("fire_hazard")
+  ABANDONED_OBJECT @map("abandoned_object")
+  ACCESS_VIOLATION @map("access_violation")
+  LOITERING @map("loitering")
+  EQUIPMENT_MALFUNCTION @map("equipment_malfunction")
+  CROWD_FORMATION @map("crowd_formation")
+  PERIMETER_BREACH @map("perimeter_breach")
+}
+
+enum Severity {
+  LOW      @map("low")
+  MEDIUM   @map("medium")
+  HIGH     @map("high")
+  CRITICAL @map("critical")
+}
+
+enum UserRole {
+  ADMIN    @map("admin")
+  OPERATOR @map("operator")
+  VIEWER   @map("viewer")
+}
