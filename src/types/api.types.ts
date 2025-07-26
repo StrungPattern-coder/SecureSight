@@ -4,80 +4,20 @@
  */
 
 /**
- * HTTP methods enumeration
+ * HTTP methods
  */
-export enum HttpMethod {
-  GET = 'GET',
-  POST = 'POST',
-  PUT = 'PUT',
-  PATCH = 'PATCH',
-  DELETE = 'DELETE'
-}
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 /**
- * API response status codes
- */
-export enum ApiStatusCode {
-  OK = 200,
-  CREATED = 201,
-  NO_CONTENT = 204,
-  BAD_REQUEST = 400,
-  UNAUTHORIZED = 401,
-  FORBIDDEN = 403,
-  NOT_FOUND = 404,
-  CONFLICT = 409,
-  UNPROCESSABLE_ENTITY = 422,
-  INTERNAL_SERVER_ERROR = 500,
-  SERVICE_UNAVAILABLE = 503
-}
-
-/**
- * Generic API response wrapper
- */
-export interface ApiResponse<T = any> {
-  /** Response data */
-  data?: T;
-  /** Success indicator */
-  success: boolean;
-  /** Error message */
-  message?: string;
-  /** Additional error details */
-  errors?: string[];
-  /** Response metadata */
-  meta?: {
-    timestamp: string;
-    requestId: string;
-    version: string;
-  };
-}
-
-/**
- * Paginated API response
- */
-export interface PaginatedResponse<T = any> extends ApiResponse<T[]> {
-  /** Pagination metadata */
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrevious: boolean;
-  };
-}
-
-/**
- * API error details
+ * API error interface
  */
 export interface ApiError {
   /** Error code */
   code: string;
   /** Error message */
   message: string;
-  /** Field-specific errors */
-  field?: string;
-  /** Additional context */
-  context?: Record<string, any>;
+  /** Error context */
+  context?: Record<string, unknown>;
 }
 
 /**
@@ -89,10 +29,10 @@ export interface RequestConfig {
   /** Request headers */
   headers?: Record<string, string>;
   /** Query parameters */
-  params?: Record<string, any>;
+  params?: Record<string, string | number | boolean>;
   /** Request body */
-  body?: any;
-  /** Whether to include credentials */
+  body?: unknown;
+  /** Include credentials */
   credentials?: boolean;
   /** Retry configuration */
   retry?: {
@@ -102,57 +42,47 @@ export interface RequestConfig {
 }
 
 /**
- * WebSocket message types
+ * Generic API response interface
  */
-export enum WebSocketMessageType {
-  CAMERA_STATUS = 'camera_status',
-  NEW_INCIDENT = 'new_incident',
-  INCIDENT_UPDATE = 'incident_update',
-  SYSTEM_ALERT = 'system_alert',
-  HEARTBEAT = 'heartbeat'
-}
-
-/**
- * WebSocket message interface
- */
-export interface WebSocketMessage<T = any> {
-  /** Message type */
-  type: WebSocketMessageType;
-  /** Message payload */
-  payload: T;
-  /** Timestamp */
-  timestamp: string;
-  /** Message ID */
-  id?: string;
-}
-
-/**
- * Real-time event types
- */
-export interface CameraStatusEvent {
-  cameraId: string;
-  status: string;
-  lastSeen: string;
-}
-
-export interface NewIncidentEvent {
-  incident: {
-    id: string;
-    cameraId: string;
-    type: string;
-    severity: string;
+export interface ApiResponse<T = unknown> {
+  /** Response data */
+  data?: T;
+  /** Success status */
+  success: boolean;
+  /** Response message */
+  message?: string;
+  /** Validation errors */
+  errors?: Record<string, string[]>;
+  /** Response metadata */
+  meta?: {
     timestamp: string;
-    thumbnailUrl?: string;
+    requestId: string;
+    version: string;
   };
 }
 
-export interface IncidentUpdateEvent {
-  incidentId: string;
-  updates: Record<string, any>;
+/**
+ * Paginated response interface
+ */
+export interface PaginatedResponse<T = unknown> extends ApiResponse<T[]> {
+  /** Pagination metadata */
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+  };
 }
 
-export interface SystemAlertEvent {
-  level: 'info' | 'warning' | 'error';
-  message: string;
-  source: string;
+/**
+ * API client interface
+ */
+export interface ApiClient {
+  get<T = unknown>(url: string, config?: RequestConfig): Promise<ApiResponse<T>>;
+  post<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<ApiResponse<T>>;
+  put<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<ApiResponse<T>>;
+  patch<T = unknown>(url: string, data?: unknown, config?: RequestConfig): Promise<ApiResponse<T>>;
+  delete<T = unknown>(url: string, config?: RequestConfig): Promise<ApiResponse<T>>;
 }

@@ -55,7 +55,7 @@ export class ApiClient {
    */
   private async request<T>(
     endpoint: string,
-    options: RequestConfig & { method: HttpMethod } = { method: HttpMethod.GET }
+    options: RequestConfig & { method: HttpMethod } = { method: 'GET' }
   ): Promise<ApiResponse<T>> {
     const url = `${this.config.baseURL}${endpoint}`;
     const controller = new AbortController();
@@ -76,7 +76,7 @@ export class ApiClient {
         };
 
         // Add body for non-GET requests
-        if (options.body && options.method !== HttpMethod.GET) {
+        if (options.body && options.method !== 'GET') {
           fetchOptions.body = typeof options.body === 'string' 
             ? options.body 
             : JSON.stringify(options.body);
@@ -159,7 +159,7 @@ export class ApiClient {
           version: response.headers.get('x-api-version') || '1.0',
         },
       };
-    } catch (parseError) {
+    } catch {
       return {
         success: isSuccess,
         message: isSuccess ? 'Success' : `HTTP ${response.status}: ${response.statusText}`,
@@ -175,24 +175,32 @@ export class ApiClient {
   /**
    * Handle API errors
    */
-  private handleError(error: any): ApiError {
-    if (error.name === 'AbortError') {
-      return {
-        code: 'REQUEST_TIMEOUT',
-        message: 'Request timed out',
-      };
-    }
+  private handleError(error: unknown): ApiError {
+    if (error instanceof Error) {
+      if (error.name === 'AbortError') {
+        return {
+          code: 'REQUEST_TIMEOUT',
+          message: 'Request timed out',
+        };
+      }
 
-    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        return {
+          code: 'NETWORK_ERROR',
+          message: 'Network connection failed',
+        };
+      }
+
       return {
-        code: 'NETWORK_ERROR',
-        message: 'Network connection failed',
+        code: 'UNKNOWN_ERROR',
+        message: error.message || 'An unexpected error occurred',
+        context: { originalError: error },
       };
     }
 
     return {
       code: 'UNKNOWN_ERROR',
-      message: error.message || 'An unexpected error occurred',
+      message: 'An unexpected error occurred',
       context: { originalError: error },
     };
   }
@@ -200,18 +208,26 @@ export class ApiClient {
   /**
    * Check if error is retryable
    */
-  private isRetryableError(error: any): boolean {
-    return (
-      error.name === 'TypeError' || // Network errors
-      error.name === 'AbortError' || // Timeout errors
-      RETRY_CODES.includes(error.status) // Retryable HTTP status codes
-    );
+  private isRetryableError(error: unknown): boolean {
+    if (error instanceof Error) {
+      return (
+        error.name === 'TypeError' || // Network errors
+        error.name === 'AbortError' // Timeout errors
+      );
+    }
+    
+    // Check for HTTP status codes on response-like objects
+    if (typeof error === 'object' && error !== null && 'status' in error) {
+      return RETRY_CODES.includes((error as { status: number }).status);
+    }
+    
+    return false;
   }
 
   /**
    * Build URL with query parameters
    */
-  private buildUrlWithParams(url: string, params?: Record<string, any>): string {
+  private buildUrlWithParams(url: string, params?: Record<string, unknown>): string {
     if (!params || Object.keys(params).length === 0) {
       return url;
     }
@@ -240,35 +256,35 @@ export class ApiClient {
    * GET request
    */
   public async get<T>(endpoint: string, config?: RequestConfig): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { ...config, method: HttpMethod.GET });
+    return this.request<T>(endpoint, { ...config, method: 'GET' });
   }
 
   /**
    * POST request
    */
-  public async post<T>(endpoint: string, data?: any, config?: RequestConfig): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { ...config, method: HttpMethod.POST, body: data });
+  public async post<T>(endpoint: string, data?: unknown, config?: RequestConfig): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { ...config, method: 'POST', body: data });
   }
 
   /**
    * PUT request
    */
-  public async put<T>(endpoint: string, data?: any, config?: RequestConfig): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { ...config, method: HttpMethod.PUT, body: data });
+  public async put<T>(endpoint: string, data?: unknown, config?: RequestConfig): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { ...config, method: 'PUT', body: data });
   }
 
   /**
    * PATCH request
    */
-  public async patch<T>(endpoint: string, data?: any, config?: RequestConfig): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { ...config, method: HttpMethod.PATCH, body: data });
+  public async patch<T>(endpoint: string, data?: unknown, config?: RequestConfig): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { ...config, method: 'PATCH', body: data });
   }
 
   /**
    * DELETE request
    */
   public async delete<T>(endpoint: string, config?: RequestConfig): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { ...config, method: HttpMethod.DELETE });
+    return this.request<T>(endpoint, { ...config, method: 'DELETE' });
   }
 }
 

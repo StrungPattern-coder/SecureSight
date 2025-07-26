@@ -77,14 +77,21 @@ export function useThrottle<T extends unknown[]>(
   delay: number
 ): (...args: T) => void {
   const callbackRef = useRef(callback);
-  callbackRef.current = callback;
+  const throttledFnRef = useRef<(...args: T) => void | undefined>(undefined);
+  
+  // Update callback ref
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
 
-  const throttledCallback = useCallback(
-    throttle((...args: T) => callbackRef.current(...args), delay),
-    [delay]
-  );
+  // Create throttled function only when delay changes
+  useEffect(() => {
+    throttledFnRef.current = throttle((...args: T) => callbackRef.current(...args), delay);
+  }, [delay]);
 
-  return throttledCallback;
+  return useCallback((...args: T) => {
+    throttledFnRef.current?.(...args);
+  }, []);
 }
 
 /**
@@ -95,14 +102,21 @@ export function useDebounceCallback<T extends unknown[]>(
   delay: number
 ): (...args: T) => void {
   const callbackRef = useRef(callback);
-  callbackRef.current = callback;
+  const debouncedFnRef = useRef<(...args: T) => void | undefined>(undefined);
+  
+  // Update callback ref
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
 
-  const debouncedCallback = useCallback(
-    debounce((...args: T) => callbackRef.current(...args), delay),
-    [delay]
-  );
+  // Create debounced function only when delay changes
+  useEffect(() => {
+    debouncedFnRef.current = debounce((...args: T) => callbackRef.current(...args), delay);
+  }, [delay]);
 
-  return debouncedCallback;
+  return useCallback((...args: T) => {
+    debouncedFnRef.current?.(...args);
+  }, []);
 }
 
 /**
@@ -135,7 +149,7 @@ export function usePrevious<T>(value: T): T | undefined {
  */
 export function useClickOutside<T extends HTMLElement>(
   callback: () => void
-): React.RefObject<T> {
+): React.RefObject<T | null> {
   const ref = useRef<T>(null);
 
   useEffect(() => {
@@ -268,9 +282,9 @@ export function useScrollPosition(): { x: number; y: number } {
  */
 export function useIntersectionObserver<T extends HTMLElement>(
   options?: IntersectionObserverInit
-): [React.RefObject<T>, boolean] {
+): [React.RefObject<T | null>, boolean] {
   const [isIntersecting, setIsIntersecting] = useState(false);
-  const ref = useRef<T>(null);
+  const ref = useRef<T | null>(null);
 
   useEffect(() => {
     if (!ref.current) return;

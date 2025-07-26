@@ -62,7 +62,7 @@ export interface TimelineSegment {
   /** Segment color */
   color?: string;
   /** Segment metadata */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -108,7 +108,7 @@ export interface TimelineInteraction {
   /** Mouse coordinates */
   coordinates?: { x: number; y: number };
   /** Additional event data */
-  data?: any;
+  data?: unknown;
 }
 
 /**

@@ -124,7 +124,7 @@ export interface SortConfig<T = string> {
 /**
  * Table column configuration
  */
-export interface TableColumn<T = any> {
+export interface TableColumn<T = unknown> {
   /** Column key */
   key: string;
   /** Display label */
@@ -132,7 +132,7 @@ export interface TableColumn<T = any> {
   /** Whether sortable */
   sortable?: boolean;
   /** Custom render function */
-  render?: (value: any, row: T) => ReactNode;
+  render?: (value: unknown, row: T) => ReactNode;
   /** Column width */
   width?: string | number;
   /** Whether column is hidden */
@@ -152,7 +152,7 @@ export interface FieldValidation {
   /** Regex pattern */
   pattern?: RegExp;
   /** Custom validator function */
-  validator?: (value: any) => string | null;
+  validator?: (value: unknown) => string | null;
 }
 
 /**
@@ -168,9 +168,9 @@ export interface FormField {
   /** Placeholder text */
   placeholder?: string;
   /** Default value */
-  defaultValue?: any;
+  defaultValue?: unknown;
   /** Options for select/radio */
-  options?: Array<{ label: string; value: any }>;
+  options?: Array<{ label: string; value: unknown }>;
   /** Validation rules */
   validation?: FieldValidation;
   /** Whether field is disabled */

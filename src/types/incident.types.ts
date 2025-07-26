@@ -66,7 +66,7 @@ export interface Incident {
   /** AI confidence score (0-1) */
   confidence?: number;
   /** Additional metadata */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   /** Resolution notes */
   resolutionNotes?: string;
   /** Assigned investigator */
@@ -88,7 +88,7 @@ export interface CreateIncidentRequest {
   thumbnailUrl?: string;
   videoUrl?: string;
   confidence?: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**

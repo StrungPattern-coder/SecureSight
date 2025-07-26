@@ -31,12 +31,23 @@ export class CameraService {
     page = 1,
     limit = 50
   ): Promise<ApiResponse<PaginatedResponse<Camera>>> {
-    const params = {
+    const params: Record<string, string | number | boolean> = {
       page,
       limit,
-      ...filters,
-      ...(filters?.status && { status: filters.status.join(',') }),
     };
+
+    // Add other filters
+    if (filters?.location) {
+      params.location = filters.location;
+    }
+    if (filters?.searchTerm) {
+      params.searchTerm = filters.searchTerm;
+    }
+    if (filters?.status) {
+      params.status = Array.isArray(filters.status) 
+        ? filters.status.join(',') 
+        : filters.status;
+    }
 
     return this.client.get<PaginatedResponse<Camera>>('/cameras', { params });
   }

@@ -4,7 +4,7 @@
  */
 
 import { Camera, CameraStatus, CameraFilters } from './camera.types';
-import { Incident, IncidentType, IncidentSeverity, IncidentStatus, IncidentFilters } from './incident.types';
+import { Incident, IncidentFilters } from './incident.types';
 import { ThemeMode, LoadingState, Toast } from './ui.types';
 
 /**

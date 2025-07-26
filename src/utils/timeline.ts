@@ -4,7 +4,7 @@
  */
 
 import { TIMELINE_CONFIG } from '@/types/constants';
-import type { TimelineIncident, TimelineMarker, TimeRange } from '@/types';
+import type { TimelineIncident, TimeRange } from '@/types';
 
 /**
  * Time conversion utilities
